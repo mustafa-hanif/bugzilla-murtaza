@@ -7,9 +7,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "dayjs": "^1.9.3",
     "next": "latest",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "swr": "^0.3.5"
   },
   "devDependencies": {
     "postcss-flexbugs-fixes": "4.2.1",
