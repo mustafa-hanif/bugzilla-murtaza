@@ -49,7 +49,9 @@ const NewBugs = () => {
   const transformData = (data) => {
     const murtazaBugs = data.bugs.filter(
       (bug) => bug.assigned_to === "murtaza.hanif@gmail.com"
-    );
+    ).filter(bug => {
+      return Math.abs(dayjs(bug.creation_time).diff(dayjs(), 'h')) < 48
+    });
     const murtazaBugsWithDeadline = murtazaBugs;
   
     murtazaBugsWithDeadline.sort((a, b) => {
@@ -64,7 +66,9 @@ const NewBugs = () => {
   };
 
   const tData = transformData(data);
-
+  if (tData.length === 0) {
+    return <div className="text-center text-2xl text-gray-700">No new bugs since last 48 hours</div>
+  }
   return <div>
       {tData.map((bug) => <Bug key={bug.id} bug={bug} />)}
   </div>
@@ -73,19 +77,17 @@ const NewBugs = () => {
 const BugZillaUpdate = () => {
   const { data, error } = useSWR(API, fetcher);
 
-  const [highestLimit, setHighestLimit] = useState(5);
-  const [highLimit, setHighLimit] = useState(5);
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;
   
   const transformData = (data) => {
     const murtazaBugs = data.bugs.filter(
-      (bug) => bug.assigned_to === "murtaza.hanif@gmail.com"
+      (bug) => bug.assigned_to === "murtaza.hanif@gmail.com" && bug.status !== 'RESOLVED'
     );
     const murtazaBugsWithDeadline = murtazaBugs;
   
     murtazaBugsWithDeadline.sort((a, b) => {
-      if (dayjs(a.last_change_time).isSameOrAfter(b.last_change_time)) {
+      if (dayjs(b.cf_nextstepdue).isSameOrAfter(a.cf_nextstepdue)) {
         return -1;
       }
       return 1;
@@ -97,41 +99,39 @@ const BugZillaUpdate = () => {
   
   const tData = transformData(data);
 
+  const dates = new Set(tData.map(b => b.cf_nextstepdue));
+
+  const newDates = Array.from(dates).map(date => {
+    return {
+      date,
+      bugs: tData.filter(bug => bug.cf_nextstepdue === date)
+    }
+  });
+  
+
   return <div>
     <div>
-      <h2 className="text-xl mb-2">
-        Highest Priority Bugs - Sorted by modified date
-      </h2>
-      {tData
-        .filter((bug) => bug.priority === "Highest")
-        .slice(0, highestLimit)
-        .map((bug) => {
-          return <Bug key={bug.id} bug={bug} />;
-        })}
-      <button
-        className="bg-blue-600 text-white px-4 py-1 rounded-lg mb-8"
-        onClick={() => setHighestLimit(highestLimit + 5)}
-      >
-        Show More Highest Priority Bugs
-      </button>
+      {newDates.map(date => <>
+        <div className="mt-12 border-t border-blue-700"></div>
+        <h2 className="text-xl mb-2 pt-2 font-bold">
+      Due By {dayjs(date.date).format(format)} <span className="bg-green-800 text-white rounded-full
+      px-2 items-center inline-flex">{date.bugs.length}</span>
+        </h2>
+        <Bugs bugs={date.bugs} />
+        {}
+      </>)}
     </div>
-    <div>
-      <h2 className="text-xl mb-2">
-        High Priority Bugs - Sorted by modified date
-      </h2>
-      {tData
-        .filter((bug) => bug.priority === "High")
-        .slice(0, highLimit)
-        .map((bug) => {
-          return <Bug key={bug.id} bug={bug} />;
-        })}
-      <button
-        className="bg-blue-600 text-white px-4 py-1 rounded-lg mb-8"
-        onClick={() => setHighLimit(highLimit + 5)}
-      >
-        Show More High Priority Bugs
-      </button>
-    </div>
+  </div>
+}
+
+const Bugs = ({ bugs }) => {
+  const [c, setC] = useState(true);
+  if (c) {
+    return <button onClick={() => setC(false)}>⏬</button>
+  }
+  return <div>
+    <button onClick={() => setC(true)}>⏫</button>
+    <div>{bugs.map(bug => <Bug key={bug.id} bug={bug} />)}</div>
   </div>
 }
 
