@@ -48,7 +48,7 @@ const NewBugs = () => {
 
   const transformData = (data) => {
     const murtazaBugs = data.bugs.filter(
-      (bug) => bug.assigned_to === "murtaza.hanif@gmail.com"
+      (bug) => ["murtaza.hanif@gmail.com", "umer.m@fourdotstechnologies.com"].includes(bug.assigned_to)
     ).filter(bug => {
       return Math.abs(dayjs(bug.creation_time).diff(dayjs(), 'h')) < 48
     });
