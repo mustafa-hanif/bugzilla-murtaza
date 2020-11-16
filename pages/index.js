@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
