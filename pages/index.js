@@ -76,6 +76,7 @@ const NewBugs = () => {
 
 const BugZillaUpdate = () => {
   const { data, error } = useSWR(API, fetcher);
+  const [expanded, setExpanded] = useState(false);
 
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;
@@ -111,21 +112,25 @@ const BugZillaUpdate = () => {
 
   return <div>
     <div>
+      <button className="" onClick={() => setExpanded(!expanded)} >Expand All / Collapse All</button>
       {newDates.map(date => <>
         <div className="mt-12 border-t border-blue-700"></div>
         <h2 className="text-xl mb-2 pt-2 font-bold">
       Due By {dayjs(date.date).format(format)} <span className="bg-green-800 text-white rounded-full
       px-2 items-center inline-flex">{date.bugs.length}</span>
         </h2>
-        <Bugs bugs={date.bugs} />
+        <Bugs bugs={date.bugs} expanded={expanded} />
         {}
       </>)}
     </div>
   </div>
 }
 
-const Bugs = ({ bugs }) => {
-  const [c, setC] = useState(true);
+const Bugs = ({ bugs, expanded }) => {
+  const [c, setC] = useState(expanded ? false : true);
+  useEffect(() => {
+    setC(!c);
+  }, [expanded])
   if (c) {
     return <button onClick={() => setC(false)}>⏬</button>
   }
