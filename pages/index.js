@@ -145,7 +145,8 @@ const Bug = ({ bug }) => {
     priority,
     cf_nextstep,
     cf_nextstepdue,
-    creation_time
+    creation_time,
+    assigned_to
   } = bug;
 
   let bgColor = "bg-gray-100";
@@ -190,7 +191,9 @@ const Bug = ({ bug }) => {
           )}
         </div>
       )}
-
+      <div className="text-xs">
+        Assigned to {assigned_to}
+      </div>
       <div className="text-xs font-semibold">
         Modified {dayjs(last_change_time).fromNow()} ({dayjs(last_change_time).format(format)})
       </div>
