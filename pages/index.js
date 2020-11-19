@@ -83,7 +83,7 @@ const BugZillaUpdate = () => {
   
   const transformData = (data) => {
     const murtazaBugs = data.bugs.filter(
-      (bug) => bug.assigned_to === "murtaza.hanif@gmail.com" && bug.status !== 'RESOLVED'
+      (bug) => ["murtaza.hanif@gmail.com", "umer.m@fourdotstechnologies.com"].includes(bug.assigned_to) && bug.status !== 'RESOLVED'
     );
     const murtazaBugsWithDeadline = murtazaBugs;
   
